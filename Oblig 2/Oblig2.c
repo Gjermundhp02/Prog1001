@@ -15,15 +15,16 @@
 int main()
 {
     // Deklaret variabler
+    const int MAXINPUT = 256;
     float akkumulator = 0.0;
-    char operasjonsHistorie[255];
-    float tallHistorie[255];
+    char operasjonsHistorie[MAXINPUT];
+    float tallHistorie[MAXINPUT];
 
 
     printf("Enkel kalkulator starter:\n\n");
     // Index for å vite hvilken operasjon vi er på
     int operasjonsIndex = 0;
-    while (true)
+    for (int i = 0; i<MAXINPUT; i++)
     {
         printf("= %.3f\n\n", akkumulator);
         // Lagre operasjonen i historien på den indeksen vi er
