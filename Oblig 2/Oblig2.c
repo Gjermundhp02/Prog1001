@@ -37,23 +37,20 @@ int main()
         switch (operasjonsHistorie[operasjonsIndex])
         {
         case '+':
-            scanf("%f", &tallHistorie[operasjonsIndex]);
-            getchar(); // Fjerner \n fra bufferen
-            akkumulator += tallHistorie[operasjonsIndex];
+            scanf("%f", &tallHistorie[operasjonsIndex])? 
+            akkumulator += tallHistorie[operasjonsIndex]:
+            operasjonsIndex--;
             break;
         case '-':
             scanf("%f", &tallHistorie[operasjonsIndex]);
-            getchar(); // Fjerner \n fra bufferen
             akkumulator -= tallHistorie[operasjonsIndex];
             break;
         case '*':
             scanf("%f", &tallHistorie[operasjonsIndex]);
-            getchar(); // Fjerner \n fra bufferen
             akkumulator *= tallHistorie[operasjonsIndex];
             break;
         case '/':
             scanf("%f", &tallHistorie[operasjonsIndex]);
-            getchar(); // Fjerner \n fra bufferen
             if (tallHistorie[operasjonsIndex] == 0)
             {
                 /** 
@@ -71,7 +68,6 @@ int main()
             break;
         case 't':
             scanf("%f", &tallHistorie[operasjonsIndex]);
-            getchar(); // Fjerner \n fra bufferen
             // Setter akkumulatoren til den spesifiserte verdien
             akkumulator = tallHistorie[operasjonsIndex];
             break;
@@ -86,10 +82,10 @@ int main()
              */
             operasjonsIndex--; 
             printf("Feil! Ukjent kommando gitt\n");
-            while (getchar() != '\n'){} // Tøm bufferen
             break;
         }
         operasjonsIndex++;
+        while (getchar() != '\n'){} // Tøm bufferen
     }
     printf("Enkel kalkulator stopper\n\nOperasjonene og tallene involvert:\n");
     // Skriver ut operasjonsHistorien og tallHistorien
