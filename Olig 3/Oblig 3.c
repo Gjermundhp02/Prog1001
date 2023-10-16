@@ -1,4 +1,8 @@
 /**
+ * Program som leser tall og sjekker om de er mellom et interval og
+ * leser en adresse og postnummer og sjekker om det er gyldig
+ * Har en brukerinterface med karakter komandoer
+ * 
  * @file Oblig.c
  * @author Gjermund H. Pedersen
  */
