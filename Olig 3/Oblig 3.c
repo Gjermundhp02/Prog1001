@@ -140,40 +140,28 @@ void lesTekst(const char ledetekst[], char tekst[])
 bool sjekkTekst(const char tekst[])
 {
     const int tekstLengde = strlen(tekst);
-    if (tekstLengde < 4)
-        return false;
-    for (int i = 0; i < 4; i++)
+    if (tekstLengde<5)return false;
+    
+    int numTall = 4;
+    for (int i = 0; i < tekstLengde; i++)
     {
+        printf("%c", tekst[i]);
         if (isdigit(tekst[i]))
         {
-            if (i != 3)
+            if (i>1)
             {
-                continue;
+                if (tekst[i+1]==' ')
+                {
+                    numTall=i;
+                }
             }
-            else if (tekst[i + 1] == ' ')
-            {
-                continue;
-            }
-            else
+        }
+        else if (i>numTall)
+        {
+            if (!isalpha(tekst[i]) && !tekst[i] == ' ' && !tekst[i] == '.' && !tekst[i] == '-')
             {
                 return false;
             }
-        }
-        else if (tekst[i] == ' ' && i == 3)
-        {
-            continue;
-        }
-        else
-        {
-            return false;
-        };
-    }
-    for (int i = 4; i < tekstLengde; i++)
-    {
-
-        if (isalpha(tekst[i]) || tekst[i] == ' ' || tekst[i] == '.' || tekst[i] == '-')
-        {
-            continue;
         }
         else{
             return false;
