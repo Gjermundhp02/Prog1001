@@ -93,8 +93,8 @@ void fyllArray(int tall[], const int n)
 {
     for (int i = 0; i < n; i++) // Leser et input for hver index i arrayet
     {
-        printf("Neste tall: ");
-        scanf("%i", &tall[i]);
+        // 3000 for at antallIArray skal kunne filtrere ut noe
+        tall[i] = lesTall("Neste tall: ", 0, 3000); 
     }
 };
 
