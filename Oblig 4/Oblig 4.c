@@ -7,7 +7,8 @@
  *   @file     Oblig 4.c
  *   @author   Gjermund H. Pedersen
  */
-
+#include <stdbool.h>
+#include <string.h>
 #include "LesData.h"
 
 #define MAXPERS 6
@@ -28,6 +29,7 @@ void oppgaveLesData(struct Oppgave* oppgave);
 void skrivOppgaver();
 void oppgaveSkrivData(const struct Oppgave* oppgave);
 void ledigeOppgaver();
+bool oppgaveLedigPlass(const struct Oppgave* oppgave);
 void personerTilknyttesOppgave();
 void oppgaveTilknyttPersoner(struct Oppgave* oppgave);
 void fjernOppgave();
@@ -48,9 +50,9 @@ int main ()  {
         switch (kommando)  {
           case 'N': nyOppgave();                 break;
           case 'S': skrivOppgaver();             break;
-        //   case 'L': ledigeOppgaver();            break;  
-        //   case 'P': personerTilknyttesOppgave(); break;  
-        //   case 'F': fjernOppgave();              break;
+          case 'L': ledigeOppgaver();            break;  
+          case 'P': personerTilknyttesOppgave(); break;  
+          case 'F': fjernOppgave();              break;
           default:    break;    
         }
         kommando = lesChar("Kommando");
@@ -88,6 +90,7 @@ void oppgaveLesData(struct Oppgave* oppgave){
 */
 void skrivOppgaver(){
     struct Oppgave** oppgaver = gOppgavene;
+    // Anntar at det er en oppgave
     printf("Oppgaver:\n");
     do
     {
@@ -111,4 +114,117 @@ void oppgaveSkrivData(const struct Oppgave* oppgave){
         printf("\n");
     }
     printf("\n");
+};
+
+/**
+ * @brief Går gjennom alle oppgavene og skriver ut de som ikke er fulle
+*/
+void ledigeOppgaver(){
+    struct Oppgave** oppgaver = gOppgavene;
+    // Anntar at det er en ledig oppgave
+    printf("Ledige oppgaver:\n");
+    do
+    {
+        if (oppgaveLedigPlass((*oppgaver))){
+            oppgaveSkrivData((*oppgaver));
+        }
+        
+    }while ((*++oppgaver));
+};
+
+/**
+ * @brief Finner ut om en oppgave har ledig plass
+*/
+bool oppgaveLedigPlass(const struct Oppgave* oppgave){
+    return oppgave->antallNaa<oppgave->antallTotalt;
+};
+
+/**
+ * @brief 
+*/
+void personerTilknyttesOppgave(){
+    if (!gOppgavene[0]){
+        printf("Det finnes ingen oppgaver.\n\n");
+    }
+    else{
+        int oppgaveId = lesInt("Hvilken oppgeve, (0 = angre): ");
+        if(!oppgaveId){
+            return;
+        }
+        else{
+            oppgaveTilknyttPersoner(gOppgavene[oppgaveId-1]);
+        }
+    }
+};
+
+/**
+ * @brief
+*/
+void oppgaveTilknyttPersoner(struct Oppgave* oppgave){
+    oppgaveSkrivData(oppgave);
+    if(!oppgaveLedigPlass(oppgave)){
+        printf("Oppgaven er full.");
+        return;
+    }
+    else{
+        int antallNye = lesInt("Hvor mange nye skal legges til", 0, 
+                               oppgave->antallTotalt-oppgave->antallNaa);
+        for (int i = 0; i < antallNye; i++)
+        {
+            oppgave->hvem[oppgave->antallNaa++] = lesInt(
+                "Id på personen som legges til", 0, 1000);
+        }
+        oppgaveSkrivData(oppgave);
+    }
+};
+
+/**
+ * @brief
+*/
+void fjernOppgave(){
+    if (!(*gOppgavene))
+    {
+        printf("Det finnes ingen oppgaver.");
+        return;
+    }
+    else{
+        char* oppgaveNavn = lagOgLesText("Hvilken oppgave vil du fjerne");
+        if(strcmp("0", oppgaveNavn)){
+            printf("Ingenting ble fjernet.\n");
+            return;
+        }
+
+        struct Oppgave** oppgaver = gOppgavene;
+
+        int sisteOppgave = 1;
+        while(gOppgavene[sisteOppgave]){sisteOppgave++;}
+        --sisteOppgave;
+
+        if (strcmp("siste", oppgaveNavn)){
+            oppgaveSlettData(gOppgavene[sisteOppgave]);
+            gOppgavene[sisteOppgave] = NULL;
+            gSisteOppgave--;
+            return;
+        }
+        else{
+            while((*oppgaver)){
+                if (strcmp(oppgaveNavn, (*oppgaver)->navn)){
+                    oppgaveSlettData((*oppgaver));
+                    (*oppgaver) = gOppgavene[sisteOppgave];
+                    gOppgavene[sisteOppgave] = NULL;
+                    gSisteOppgave--;
+                    return;
+                }
+                oppgaver++;
+            }
+            printf("Fant ikke oppgaven.");
+        }
+    }
+};
+
+/**
+ * @brief
+*/
+void oppgaveSlettData(struct Oppgave* oppgave){
+    free(oppgave);
 };
