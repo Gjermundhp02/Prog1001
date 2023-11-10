@@ -81,7 +81,7 @@ void nyOppgave(){
 */
 void oppgaveLesData(struct Oppgave* oppgave){
     oppgave->navn = lagOgLesText("Skriv inn et navn: ");
-    oppgave->antallTotalt = lesInt("Hvor mange kan jobbe på denne oppgaven (0-6): ", 0, 6);
+    oppgave->antallTotalt = lesInt("Hvor mange kan jobbe på denne oppgaven", 0, 6);
     oppgave->antallNaa = 0;
 };
 
@@ -89,13 +89,18 @@ void oppgaveLesData(struct Oppgave* oppgave){
  * @brief Skriver ut alle oppgavene og infoen
 */
 void skrivOppgaver(){
-    struct Oppgave** oppgaver = gOppgavene;
-    // Anntar at det er en oppgave
-    printf("Oppgaver:\n");
-    do
-    {
-        oppgaveSkrivData((*oppgaver));
-    }while ((*++oppgaver));
+    if (gOppgavene[0]==0x0){
+        printf("Det finnes ingen oppgaver.\n\n");
+    }
+    else{
+        struct Oppgave** oppgaver = gOppgavene;
+        // Anntar at det er en oppgave
+        printf("Oppgaver:\n");
+        do
+        {
+            oppgaveSkrivData((*oppgaver));
+        }while ((*++oppgaver));
+    }
 };
 
 /**
@@ -120,16 +125,26 @@ void oppgaveSkrivData(const struct Oppgave* oppgave){
  * @brief Går gjennom alle oppgavene og skriver ut de som ikke er fulle
 */
 void ledigeOppgaver(){
-    struct Oppgave** oppgaver = gOppgavene;
-    // Anntar at det er en ledig oppgave
-    printf("Ledige oppgaver:\n");
-    do
-    {
-        if (oppgaveLedigPlass((*oppgaver))){
-            oppgaveSkrivData((*oppgaver));
+    if (gOppgavene[0]==0x0){
+        printf("Det finnes ingen oppgaver.\n\n");
+    }
+    else{
+        struct Oppgave** oppgaver = gOppgavene;
+        // Anntar at det er en ledig oppgave
+        if(!oppgaveLedigPlass((*oppgaver))){
+            printf("Det finnes ingen ledige oppgaver.\n\n");
         }
-        
-    }while ((*++oppgaver));
+        else{
+            printf("Ledige oppgaver:\n");
+            oppgaveSkrivData(*oppgaver);
+            while(*++oppgaver){
+                if (oppgaveLedigPlass((*oppgaver))){
+                    oppgaveSkrivData((*oppgaver));
+                }
+                
+            };
+        }
+    }
 };
 
 /**
@@ -147,12 +162,16 @@ void personerTilknyttesOppgave(){
         printf("Det finnes ingen oppgaver.\n\n");
     }
     else{
-        int oppgaveId = lesInt("Hvilken oppgeve, (0 = angre): ");
-        if(!oppgaveId){
+        char* oppgaveNavn = lagOgLesText("Hvilken oppgeve, (0 = angre)");
+        if(strcmp("0", oppgaveNavn)==0){
             return;
         }
         else{
-            oppgaveTilknyttPersoner(gOppgavene[oppgaveId-1]);
+            struct Oppgave** oppgaver = gOppgavene;
+            while(!(strcmp(oppgaveNavn, (*oppgaver)->navn)==0)){
+                oppgaver++;
+            }
+            oppgaveTilknyttPersoner((*oppgaver));
         }
     }
 };
@@ -184,12 +203,12 @@ void oppgaveTilknyttPersoner(struct Oppgave* oppgave){
 void fjernOppgave(){
     if (!(*gOppgavene))
     {
-        printf("Det finnes ingen oppgaver.");
+        printf("Det finnes ingen oppgaver.\n\n");
         return;
     }
     else{
         char* oppgaveNavn = lagOgLesText("Hvilken oppgave vil du fjerne");
-        if(strcmp("0", oppgaveNavn)){
+        if(strcmp("0", oppgaveNavn)==0){
             printf("Ingenting ble fjernet.\n");
             return;
         }
@@ -200,7 +219,7 @@ void fjernOppgave(){
         while(gOppgavene[sisteOppgave]){sisteOppgave++;}
         --sisteOppgave;
 
-        if (strcmp("siste", oppgaveNavn)){
+        if (strcmp("siste", oppgaveNavn)==0){
             oppgaveSlettData(gOppgavene[sisteOppgave]);
             gOppgavene[sisteOppgave] = NULL;
             gSisteOppgave--;
@@ -208,7 +227,7 @@ void fjernOppgave(){
         }
         else{
             while((*oppgaver)){
-                if (strcmp(oppgaveNavn, (*oppgaver)->navn)){
+                if (strcmp(oppgaveNavn, (*oppgaver)->navn)==0){
                     oppgaveSlettData((*oppgaver));
                     (*oppgaver) = gOppgavene[sisteOppgave];
                     gOppgavene[sisteOppgave] = NULL;
