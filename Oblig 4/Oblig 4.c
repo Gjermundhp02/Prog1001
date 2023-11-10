@@ -80,7 +80,7 @@ void nyOppgave(){
  * @brief Leser data inn i en oppgave
 */
 void oppgaveLesData(struct Oppgave* oppgave){
-    oppgave->navn = lagOgLesText("Skriv inn et navn: ");
+    oppgave->navn = lagOgLesText("Skriv inn et navn");
     oppgave->antallTotalt = lesInt("Hvor mange kan jobbe på denne oppgaven", 0, 6);
     oppgave->antallNaa = 0;
 };
@@ -89,7 +89,7 @@ void oppgaveLesData(struct Oppgave* oppgave){
  * @brief Skriver ut alle oppgavene og infoen
 */
 void skrivOppgaver(){
-    if (gOppgavene[0]==0x0){
+    if (!gOppgavene[0]){
         printf("Det finnes ingen oppgaver.\n\n");
     }
     else{
@@ -125,7 +125,7 @@ void oppgaveSkrivData(const struct Oppgave* oppgave){
  * @brief Går gjennom alle oppgavene og skriver ut de som ikke er fulle
 */
 void ledigeOppgaver(){
-    if (gOppgavene[0]==0x0){
+    if (!gOppgavene[0]){
         printf("Det finnes ingen oppgaver.\n\n");
     }
     else{
@@ -201,7 +201,7 @@ void oppgaveTilknyttPersoner(struct Oppgave* oppgave){
  * @brief
 */
 void fjernOppgave(){
-    if (!(*gOppgavene))
+    if (!gOppgavene[0])
     {
         printf("Det finnes ingen oppgaver.\n\n");
         return;
@@ -226,9 +226,9 @@ void fjernOppgave(){
             return;
         }
         else{
-            while((*oppgaver)){
+            while(*oppgaver){
                 if (strcmp(oppgaveNavn, (*oppgaver)->navn)==0){
-                    oppgaveSlettData((*oppgaver));
+                    oppgaveSlettData(*oppgaver);
                     (*oppgaver) = gOppgavene[sisteOppgave];
                     gOppgavene[sisteOppgave] = NULL;
                     gSisteOppgave--;
@@ -245,5 +245,6 @@ void fjernOppgave(){
  * @brief
 */
 void oppgaveSlettData(struct Oppgave* oppgave){
+    free(oppgave->navn);
     free(oppgave);
 };
