@@ -179,7 +179,8 @@ void personerTilknyttesOppgave(){
                 }
             }while(*(++oppgaver)); // Øker hvor pekeren peker med en og så 
         }                          // sjekker om den pekeren er NULL. Hvis sen 
-    }                              // ikke er NULL blir neste oppgave skrevet ut
+        free(oppgaveNavn);         // ikke er NULL blir neste oppgave skrevet ut
+    }
 };
 
 /**
@@ -258,6 +259,7 @@ void fjernOppgave(){
             }
             printf("Fant ikke oppgaven.\n");
         }
+        free(oppgaveNavn);
     }
 };
 
