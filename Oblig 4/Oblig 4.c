@@ -8,12 +8,11 @@
  *   @file     Oblig 4.c
  *   @author   Gjermund H. Pedersen
  */
-#include <stdbool.h>
-#include <string.h>
-#include "LesData.h"
+#include <stdbool.h> // bool
+#include "LesData.h" // lesInt, lesChar, lagOgLesText
 
-#define MAXPERS 6  // Maks personer som kan være per oppgave
-#define MAXOPPG 20 // Maks oppgaver man kan legge inn
+#define MAXPERS 6  ///< Maks personer som kan være per oppgave
+#define MAXOPPG 20 ///< Maks oppgaver man kan legge inn
 
 // Datamedlemene til en oppgave
 struct Oppgave {
@@ -23,8 +22,8 @@ int antallTotalt,  // Hvor mange som totalt kan være på oppgaven
 int hvem[MAXPERS]; // IDen til de som er på oppgaven
 };
 
-struct Oppgave* gOppgavene[MAXOPPG]; // Arrayet som holder pekerne til oppgavene
-int gSisteOppgave = 0;               // Hvor mange oppgaver som er lagt til
+struct Oppgave* gOppgavene[MAXOPPG]; ///< Arrayet som holder pekerne til oppgavene
+int gSisteOppgave = 0;               ///< Hvor mange oppgaver som er lagt til
 
 void nyOppgave();
 void oppgaveLesData(struct Oppgave* oppgave);
@@ -43,6 +42,12 @@ void skrivMeny();
  *  Hovedprogrammet:
  * 
  *  Leser en komando og kjører den korresponderende funksjonen 
+ *  @see nyOppgave
+ *  @see skrivOppgaver
+ *  @see ledigeOppgaver
+ *  @see personerTilknyttetOppgave
+ *  @see fjernOppgavene
+ *  @see skrivMeny
  */
 int main ()  {
     char kommando;
@@ -68,6 +73,8 @@ int main ()  {
 
 /**
  * @brief Lager en ny oppgave
+ * 
+ * @see oppgaveLesData
 */
 void nyOppgave(){
     // Legger ikke til oppgave hvis det ikke er plass
@@ -84,6 +91,8 @@ void nyOppgave(){
 
 /**
  * @brief Leser data inn i en oppgave
+ * 
+ * @param oppgave - oppgaven som skal fylles ut
 */
 void oppgaveLesData(struct Oppgave* oppgave){
     oppgave->navn = lagOgLesText("Skriv inn et navn");
@@ -94,24 +103,24 @@ void oppgaveLesData(struct Oppgave* oppgave){
 
 /**
  * @brief Skriver ut alle oppgavene og infoen
+ * 
+ * @see oppgaveSkrivData
 */
 void skrivOppgaver(){
     if (!gOppgavene[0]){
         printf("Det finnes ingen oppgaver.\n");
     }
     else{
-        // Lager en kopi av pekeren til arrayet slik at vi ikke mister starten
-        struct Oppgave** oppgaver = gOppgavene; 
-        printf("Oppgaver:\n");
-        do
-        {
-            oppgaveSkrivData(*oppgaver);
-        }while (*(++oppgaver)); // Øker hvor pekeren peker med en og så sjekker
-    }                           // om den pekeren er NULL. Hvis sen ikke er NULL 
-};                              // blir neste oppgave skrevet ut.
+        for (int i = 0; i < gSisteOppgave; i++){
+            oppgaveSkrivData(gOppgavene[i]);
+        }
+    }
+};
 
 /**
  * @brief Skriver ut dataen i en oppgave
+ * 
+ * @param oppgave - oppgaven som skal bli skrevet ut.
 */
 void oppgaveSkrivData(const struct Oppgave* oppgave){
     printf("\tNavn: %s\n", oppgave->navn);
@@ -130,27 +139,26 @@ void oppgaveSkrivData(const struct Oppgave* oppgave){
 
 /**
  * @brief Går gjennom alle oppgavene og skriver ut de som ikke er fulle
+ * 
+ * @see oppgaveLedigPlass
 */
 void ledigeOppgaver(){
     if (!gOppgavene[0]){
         printf("Det finnes ingen oppgaver.\n");
     }
     else{
-        // Lager en kopi av pekeren til arrayet slik at vi ikke mister starten
-        struct Oppgave** oppgaver = gOppgavene;
-        printf("Ledige oppgaver: \n");
-        while(*(++oppgaver)){ // Øker hvor pekeren peker med en og så sjekker
-                              // om den pekeren er NULL. Hvis sen ikke er NULL 
-                              // blir neste oppgave skrevet ut.
-            if (oppgaveLedigPlass((*oppgaver))){
-                oppgaveSkrivData((*oppgaver));
+        for (int i = 0; i < gSisteOppgave; i++){
+            if (oppgaveLedigPlass(gOppgavene[i])){
+                oppgaveSkrivData(gOppgavene[i]);
             }  
-        };
+        }
     }
 };
 
 /**
  * @brief Finner ut om en oppgave har ledig plass
+ * 
+ * @return Om det er ledig plass i oppgaven
 */
 bool oppgaveLedigPlass(const struct Oppgave* oppgave){
     return oppgave->antallNaa < oppgave->antallTotalt;
@@ -158,33 +166,31 @@ bool oppgaveLedigPlass(const struct Oppgave* oppgave){
 
 /**
  * @brief Legger til en eller flere personer til en oppgave
+ * 
+ * @see oppgaveTilknyttPersoner
 */
 void personerTilknyttesOppgave(){
     if (!gOppgavene[0]){
         printf("Det finnes ingen oppgaver.\n");
     }
     else{
-        char* oppgaveNavn = lagOgLesText("Hvilken oppgeve");
-        if(strcmp("0", oppgaveNavn)==0){ // Sjekker om brukeren angrer
+        int oppgaveId = lesInt("Hvilken oppgeve", 0, MAXOPPG+1);
+        if(oppgaveId==0){ // Sjekker om brukeren angrer
+            printf("Angrer. Ingenting endret\n");
             return;
         }
         else{
-            // Lager en kopi av pekeren til arrayet slik at vi ikke mister 
-            // starten
-            struct Oppgave** oppgaver = gOppgavene;
-            // Sjekker om navnet brukeren ga stemmer med 
-            do{
-                if(strcmp(oppgaveNavn, (*oppgaver)->navn)){
-                    oppgaveTilknyttPersoner((*oppgaver));
-                }
-            }while(*(++oppgaver)); // Øker hvor pekeren peker med en og så 
-        }                          // sjekker om den pekeren er NULL. Hvis sen 
-        free(oppgaveNavn);         // ikke er NULL blir neste oppgave skrevet ut
+            oppgaveTilknyttPersoner(gOppgavene[oppgaveId-1]);
+        }
+                                   
     }
 };
 
 /**
  * @brief Legger til en person i en spesifisert oppgave
+ * 
+ * @see oppgaveSkrivData
+ * @see oppgaveLedigPlass
 */
 void oppgaveTilknyttPersoner(struct Oppgave* oppgave){
     oppgaveSkrivData(oppgave);
@@ -208,6 +214,8 @@ void oppgaveTilknyttPersoner(struct Oppgave* oppgave){
 
 /**
  * @brief Fjerner den oppgaven brukeren spesifiserer
+ * 
+ * @see oppgaveSlettData
 */
 void fjernOppgave(){
     if (!gOppgavene[0]){
@@ -215,51 +223,35 @@ void fjernOppgave(){
         return;
     }
     else{
-        char* oppgaveNavn = lagOgLesText("Hvilken oppgave vil du fjerne");
-        if(strcmp("0", oppgaveNavn)==0){
+        int oppgaveId = lesInt("Hvilken oppgave vil du fjerne", 0, MAXOPPG+1);
+        if(oppgaveId==0){
             printf("Ingenting ble fjernet.\n");
             return;
         }
-        // Lager en kopi av pekeren til arrayet slik at vi ikke mister starten
-        struct Oppgave** oppgaver = gOppgavene;
-
-        if (strcmp("siste", oppgaveNavn)==0){
+        else{
             char bekreftelse = lesChar(
                 "Er du sikker på at du vil fjerne den siste oppgaven: (J/N)");
-            if (bekreftelse=='J')
-            {
-                oppgaveSlettData(gOppgavene[gSisteOppgave]);
-                gOppgavene[gSisteOppgave] = NULL;
-                gSisteOppgave--;
-                printf("Oppgaven ble slettet.\n");
-                return;
+            if (bekreftelse=='J'){
+                if(oppgaveId==gSisteOppgave){
+                    printf("Den siste oppgaven ble fjernert.\n");
+                    oppgaveSlettData(gOppgavene[gSisteOppgave-1]);
+                    free(gOppgavene[gSisteOppgave-1]);
+                    gOppgavene[gSisteOppgave-1] = NULL;
+                    gSisteOppgave--;
+                }
+                else{
+                    printf("Oppgaven ble fjernet\n");
+                    oppgaveSlettData(gOppgavene[oppgaveId-1]);
+                    free(gOppgavene[oppgaveId-1]);
+                    gOppgavene[oppgaveId-1] = gOppgavene[gSisteOppgave-1];
+                    gOppgavene[gSisteOppgave-1] = NULL;
+                    gSisteOppgave--;
+                }
             }
             else{
                 printf("Avbryter! Ingenting ble endret.\n");
             }
         }
-        else{
-            while(*oppgaver){
-                if (strcmp(oppgaveNavn, (*oppgaver)->navn)==0){
-                    char bekreftelse = lesChar(
-                        "Er du sikker på at du vil fjerne den siste oppgaven: (J/N)");
-                    if (bekreftelse=='J'){
-                        oppgaveSlettData(*oppgaver);
-                        (*oppgaver) = gOppgavene[gSisteOppgave];
-                        gOppgavene[gSisteOppgave] = NULL;
-                        gSisteOppgave--;
-                        printf("Oppgaven ble slettet.\n");
-                        return;
-                    }
-                    else{
-                        printf("Avbryter! Ingenting ble endret.\n");
-                    }
-                }
-                oppgaver++;
-            }
-            printf("Fant ikke oppgaven.\n");
-        }
-        free(oppgaveNavn);
     }
 };
 
@@ -268,7 +260,6 @@ void fjernOppgave(){
 */
 void oppgaveSlettData(struct Oppgave* oppgave){
     free(oppgave->navn);
-    free(oppgave);
 };
 
 /**
