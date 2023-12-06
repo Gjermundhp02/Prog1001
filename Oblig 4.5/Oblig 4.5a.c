@@ -58,8 +58,8 @@ bool maleriMatch(const struct Maleri* maleri, const char* navn,
                  const enum Lokasjon lok);
 bool maleriMinst(const struct Maleri* maleri, const int min);
 void maleriLesData(struct Maleri* maleri);
-void maleriLesDataFil(const char* filnavn);
-void maleriSkrivDataFil(const char* filnavn);
+void lesFraFil();
+void skrivTilFil();
 void maleriSkrivAlt(const struct Maleri* maleri);
 void maleriSkrivNoe(const struct Maleri* maleri);
 void nyttMaleri();
@@ -80,7 +80,7 @@ int    gAntallMaleri = 0;               ///<  Antall indekser/"skuffer" brukt.
 int main ()  {
     char kommando;
 
-//  lesFraFil();
+    lesFraFil();
 
     skrivMeny();
     kommando = lesChar("\nKommando");
@@ -97,7 +97,7 @@ int main ()  {
         kommando = lesChar("\nKommando");
     }
 
-//  skrivTilFil();
+    skrivTilFil();
 
     frigiAllokertMemory();
 
@@ -178,27 +178,53 @@ void maleriLesData(struct Maleri* maleri)  {
   maleri->hoyde  = lesInt("\tH�yde ", MINMAAL, MAXMAAL);
 }
 
-void maleriLesDataFil(const char* filnavn){
-    FILE* fil = fopen(filnavn, "r");
+void lesFraFil(){
+    FILE* fil = fopen("malerier.dat", "r");
 
     if(fil){
-        gMalerier[0] = malloc(sizeof(struct Maleri*));
-        gAntallMaleri++;
+        int i = 0;
+        while(!feof(fil)){
+            gMalerier[i] = malloc(sizeof(struct Maleri*));
+            gAntallMaleri++;
 
-        char buffer[BUFFERLENGDE];
-        for (int i = 0; i < 3; i++){
+            char buffer[BUFFERLENGDE];
             fgets(buffer, BUFFERLENGDE, fil);
+            buffer[strlen(buffer)-1]= '\0';
+            gMalerier[i]->tittel = (char*) malloc((strlen(buffer)+1) * sizeof(char));
+            printf("%i", gMalerier[i]->tittel);
+            strcpy(gMalerier[i]->tittel, buffer);
+            fgets(buffer, BUFFERLENGDE, fil);
+            buffer[strlen(buffer)-1]= '\0';
+            gMalerier[i]->by = (char*) malloc((strlen(buffer)+1) * sizeof(char));
+            strcpy(gMalerier[i]->by, buffer);
+            fgets(buffer, BUFFERLENGDE, fil);
+            buffer[strlen(buffer)-1]= '\0';
+            gMalerier[i]->sted = (char*) malloc((strlen(buffer)+1) * sizeof(char));
+            strcpy(gMalerier[i]->sted, buffer);
             
+            fscanf(fil, "%i %i %i", 
+                &gMalerier[i]->aar, &gMalerier[i]->bredde, &gMalerier[i]->hoyde);
+            fgetc(fil);
+            i++;
         }
-        
     }
     else{
         printf("Fant ingen data fra før av");
     }
 }
 
-void maleriSkrivDataFil(const char* filnavn){
-    FILE* fil = fopen(filnavn, "w");
+void skrivTilFil(){
+    FILE* fil = fopen("malerier2.dat", "w");
+    if (fil){
+        for(int i = 0; i<gAntallMaleri; i++){
+            fprintf(fil, "%s\n%s\n%s\n%i %i %i\n", 
+                gMalerier[i]->tittel, gMalerier[i]->by, gMalerier[i]->sted, 
+                gMalerier[i]->aar, gMalerier[i]->bredde, gMalerier[i]->hoyde);
+        }
+    }
+    else{
+        printf("Kulle ikke finne eller lage output fil");
+    }
 }
 
 /**
