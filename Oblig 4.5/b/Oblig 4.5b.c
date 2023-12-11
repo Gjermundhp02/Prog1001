@@ -54,6 +54,8 @@ void skrivData();
 int main ()  {
     char kommando;
 
+    lesData();
+
     skrivMeny();
     kommando = lesChar("\nKommando");
 
@@ -68,6 +70,8 @@ int main ()  {
         }
         kommando = lesChar("\nKommando");
     }
+
+    skrivData();
 
     printf("\n");
     return 0;
@@ -284,19 +288,47 @@ void lesData(){
     FILE* fil = fopen("oppgaver.dat", "r");
 
     if (fil){
-        while(feof(fil)){
+        while(!feof(fil)){
             char buffer[200];
             gOppgavene[gSisteOppgave] = malloc(sizeof(struct Oppgave*));
 
             
             fgets(buffer, 200, fil);
             buffer[strlen(buffer)-1] = '\0';
+            gOppgavene[gSisteOppgave]->navn = (char *) malloc(sizeof(char)*(strlen(buffer)+1));
             strcpy(gOppgavene[gSisteOppgave]->navn, buffer);
+
+            fscanf(fil, "%i %i", &gOppgavene[gSisteOppgave]->antallTotalt, &gOppgavene[gSisteOppgave]->antallNaa);
+            fgetc(fil);
+            
+            for (int i = 0; i < gOppgavene[gSisteOppgave]->antallNaa+1; i++){
+                fscanf(fil, "%i", &gOppgavene[gSisteOppgave]->hvem[i]);
+            }
+
+            gSisteOppgave++;
+        }
+    }
+    else{
+        printf("Fant ikke filen");
+    }
+    
+};
+
+void skrivData(){
+    FILE* fil = fopen("oppgaver2.dat", "w");
+
+    if(fil){
+        for (int i = 0; i < gSisteOppgave; i++){
+            fprintf(fil, "%s\n%i %i\n", gOppgavene[i]->navn, 
+                gOppgavene[i]->antallTotalt, gOppgavene[i]->antallNaa);
+            for (int j = 0; j < gOppgavene[i]->antallNaa; j++){
+                fprintf(fil, "%i ", gOppgavene[i]->hvem[j]);
+            }
+            fprintf(fil, "\n");
         }
         
     }
     else{
         printf("Fant ikke filen");
     }
-    
 };
