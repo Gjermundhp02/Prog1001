@@ -3,6 +3,5 @@
 #include <stdio.h>
 
 int main(){
-    char k = '5';
-    printf("%i", k-'0');
+    printf("%i", 0 && 43);
 }
